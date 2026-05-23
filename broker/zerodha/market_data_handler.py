@@ -1,6 +1,8 @@
 from datetime import datetime
 from threading import Lock
 
+from market_data.service import market_data_service
+
 
 class MarketDataHandler:
 
@@ -26,6 +28,10 @@ class MarketDataHandler:
         with cls._lock:
 
             cls.live_data[instrument_token] = snapshot
+
+        market_data_service.ingest_tick(
+            snapshot
+        )
 
     @classmethod
     def normalize_tick(cls, tick):
@@ -74,3 +80,10 @@ class MarketDataHandler:
                 token: values.copy()
                 for token, values in cls.live_data.items()
             }
+
+    @classmethod
+    def get_latest_candle(cls, instrument_token):
+
+        return market_data_service.latest_candle(
+            int(instrument_token)
+        )

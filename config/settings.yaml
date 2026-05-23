@@ -1,0 +1,24 @@
+system:
+  name: TRADING-APP-V2
+  mode: paper
+  timezone: Asia/Kolkata
+  base_currency: INR
+
+data:
+  default_intraday_resolution: 1m
+  research_resolutions:
+    - 1m
+    - 5m
+    - 15m
+  storage:
+    raw_path: data/raw
+    processed_path: data/processed
+    parquet_path: data/parquet
+    cache_path: data/cache
+    duckdb_path: database/duckdb/trading.duckdb
+
+runtime:
+  enable_live_trading: false
+  enable_paper_trading: true
+  enable_daily_backtests: true
+  enable_ai_scoring: false

@@ -1,0 +1,18 @@
+zerodha:
+  broker_name: Zerodha
+  product_default: MIS
+  order_variety_default: regular
+  exchange_segments:
+    equities:
+      - NSE
+    derivatives:
+      - NFO
+    commodities:
+      - MCX
+  websocket:
+    reconnect: true
+    reconnect_max_attempts: 10
+    mode: full
+  auth:
+    session_store: data/cache/session.json
+    encrypt_access_token: true

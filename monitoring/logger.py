@@ -1,0 +1,2 @@
+"""Central logging setup."""
+

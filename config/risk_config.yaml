@@ -1,0 +1,24 @@
+risk:
+  risk_per_trade_pct: 2.0
+  daily_max_loss_pct: 5.0
+  weekly_max_loss_pct: 10.0
+  max_open_positions: 3
+  max_strategy_positions: 1
+  max_leverage: 1.0
+  kill_switch_enabled: true
+
+execution_guards:
+  require_market_open: true
+  require_broker_connected: true
+  require_risk_approval: true
+  block_live_orders_in_paper_mode: true
+
+position_sizing:
+  method: volatility_scaled_fixed_fractional
+  min_quantity: 1
+  max_single_trade_capital_pct: 25.0
+
+drawdown_controls:
+  halt_after_consecutive_losses: 3
+  reduce_size_after_drawdown_pct: 3.0
+  size_reduction_factor: 0.5

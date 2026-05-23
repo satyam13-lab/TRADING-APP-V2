@@ -11,15 +11,36 @@ class MarketDataHandler:
     @classmethod
     def update_tick(cls, tick):
 
+        snapshot = cls.normalize_tick(
+            tick
+        )
+
+        if snapshot is None:
+
+            return
+
+        instrument_token = snapshot[
+            "instrument_token"
+        ]
+
+        with cls._lock:
+
+            cls.live_data[instrument_token] = snapshot
+
+    @classmethod
+    def normalize_tick(cls, tick):
+
         instrument_token = tick.get(
             "instrument_token"
         )
 
         if instrument_token is None:
 
-            return
+            return None
 
-        snapshot = {
+        return {
+
+            "instrument_token": instrument_token,
 
             "last_price": tick.get(
                 "last_price"
@@ -33,12 +54,16 @@ class MarketDataHandler:
                 "oi"
             ),
 
+            "depth": tick.get(
+                "depth"
+            ),
+
+            "exchange_timestamp": tick.get(
+                "exchange_timestamp"
+            ),
+
             "timestamp": datetime.now()
         }
-
-        with cls._lock:
-
-            cls.live_data[instrument_token] = snapshot
 
     @classmethod
     def get_data(cls):

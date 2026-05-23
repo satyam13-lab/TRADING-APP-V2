@@ -2,6 +2,7 @@ streamlit
 streamlit-autorefresh
 kiteconnect
 python-dotenv
+pyyaml
 pandas
 numpy
 duckdb

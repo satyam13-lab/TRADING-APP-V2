@@ -1,20 +1,25 @@
+watchlist:
+  indices:
+    - NIFTY
+    - BANKNIFTY
+
 indices:
-  - symbol: NIFTY 50
-    alias: NIFTY
+  - alias: NIFTY
+    symbol: NIFTY 50
     exchange: NSE
     instrument_token: 256265
     enabled: true
-  - symbol: NIFTY BANK
-    alias: BANKNIFTY
+  - alias: BANKNIFTY
+    symbol: NIFTY BANK
     exchange: NSE
     instrument_token: 260105
     enabled: true
-  - symbol: NIFTY FIN SERVICE
-    alias: FINNIFTY
+  - alias: FINNIFTY
+    symbol: NIFTY FIN SERVICE
     exchange: NSE
     enabled: false
-  - symbol: INDIA VIX
-    alias: VIX
+  - alias: VIX
+    symbol: INDIA VIX
     exchange: NSE
     enabled: false
 

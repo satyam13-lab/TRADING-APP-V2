@@ -1,0 +1,341 @@
+TRADING-APP-V2 — CURRENT PROJECT CONTEXT SUMMARY
+Project Goal
+
+Building a production-grade institutional-style quantitative trading platform for Indian markets using:
+
+Zerodha Kite Connect API
+Python
+Streamlit
+Modular architecture
+Multi-asset trading
+Future support for:
+Equity
+F&O
+Options
+Commodities
+AI-assisted trading
+Backtesting
+Risk engine
+Live execution
+CURRENT STATUS
+MODULE COMPLETED
+Zerodha Authentication System + Professional UI Foundation
+
+This module is now functional.
+
+CURRENT WORKING FEATURES
+Zerodha Integration
+
+Working:
+
+API Key + API Secret setup
+Zerodha login URL generation
+OAuth redirect flow
+Automatic request token capture
+Automatic access token generation
+Session persistence
+Local callback server
+AUTH FLOW IMPLEMENTED
+
+User clicks:
+
+Start New Session With Zerodha
+
+System:
+
+Starts Flask callback server
+↓
+Opens Zerodha login automatically
+↓
+User logs into Zerodha
+↓
+Redirects to:
+http://127.0.0.1:5000/
+↓
+Request token captured automatically
+↓
+Access token generated automatically
+↓
+Session saved locally
+
+NO manual token pasting anymore.
+
+CURRENT FILE STRUCTURE
+TRADING-APP-V2/
+│
+├── app/
+│   ├── __init__.py
+│   ├── streamlit_app.py
+│   │
+│   ├── styles/
+│   │   ├── __init__.py
+│   │   └── global_css.py
+│   │
+│   └── components/
+│       ├── __init__.py
+│       ├── sidebar.py
+│       ├── header.py
+│       ├── metric_card.py
+│       ├── broker_panel.py
+│       └── health_panel.py
+│
+├── broker/
+│   ├── __init__.py
+│   │
+│   └── zerodha/
+│       ├── __init__.py
+│       ├── auth.py
+│       ├── session_manager.py
+│       └── callback_server.py
+│
+├── config/
+│   ├── __init__.py
+│   └── settings.py
+│
+├── data/
+│   └── cache/
+│       └── session.json
+│
+├── logs/
+│
+├── .env
+├── requirements.txt
+└── .gitignore
+IMPORTANT IMPLEMENTATION DETAILS
+Python Package Fix
+
+Added:
+
+__init__.py
+
+files everywhere to fix:
+
+ModuleNotFoundError
+ROOT IMPORT FIX
+
+Added this pattern in executable modules:
+
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT_DIR))
+
+and for callback server:
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+
+This fixed:
+
+No module named 'broker'
+SESSION HANDLING
+
+Implemented:
+
+SessionManager
+
+Features:
+
+save session
+load session
+persistent local storage
+
+Session file:
+
+data/cache/session.json
+UI ARCHITECTURE DECISION
+
+Initially:
+
+monolithic Streamlit file
+large inline HTML blobs
+rendering instability
+
+We migrated to:
+
+COMPONENT-BASED UI ARCHITECTURE
+CURRENT UI COMPONENTS
+global_css.py
+
+Contains:
+
+app theme
+colors
+card styling
+typography
+sidebar styles
+sidebar.py
+
+Renders:
+
+left navigation
+module list
+system status
+header.py
+
+Renders:
+
+dashboard title
+subtitle
+metric_card.py
+
+Reusable metric cards:
+
+Broker
+Session Status
+Environment
+Mode
+Health metrics
+broker_panel.py
+
+Handles:
+
+auth panel
+login flow button
+callback flow
+session state display
+health_panel.py
+
+Handles:
+
+CPU usage
+memory usage
+latency cards
+IMPORTANT UI LESSON LEARNED
+
+Using:
+
+<div>
+
+heavy nested HTML inside Streamlit caused:
+
+raw HTML rendering
+escaped HTML text
+unstable rendering
+
+Final architectural decision:
+
+Hybrid Streamlit UI
+
+Meaning:
+
+Streamlit handles layout
+CSS handles styling
+minimal HTML only
+
+This stabilized rendering.
+
+CURRENT UI THEME
+
+Professional institutional-style:
+
+light sky-blue fintech aesthetic
+modular cards
+left sidebar
+clean dashboard
+responsive structure
+
+Inspired by:
+
+fintech terminals
+hedge fund dashboards
+modern quant UIs
+CURRENT DEPENDENCIES
+streamlit
+kiteconnect
+python-dotenv
+loguru
+flask
+CURRENT .ENV FORMAT
+KITE_API_KEY=YOUR_API_KEY
+KITE_API_SECRET=YOUR_API_SECRET
+REDIRECT_URL=http://127.0.0.1:5000/
+CURRENT RUN COMMAND
+streamlit run app/streamlit_app.py
+CURRENT MODULE STATE
+COMPLETED
+Zerodha auth
+OAuth callback flow
+Session persistence
+Modular Streamlit UI
+Package architecture
+Sidebar system
+Metric card system
+NEXT MODULE TO BUILD
+
+Recommended next step:
+
+LIVE MARKET DATA ENGINE
+
+Planned:
+
+Zerodha websocket
+tick streaming
+instrument subscription
+live market status
+connection manager
+reconnect logic
+live UI updates
+FUTURE ROADMAP
+Phase 2
+
+Live data engine
+
+Phase 3
+
+Historical data fetcher
+
+Phase 4
+
+Feature engine
+
+Phase 5
+
+Regime detection engine
+
+Phase 6
+
+Strategy engine
+
+Phase 7
+
+Backtesting engine
+
+Phase 8
+
+Risk engine
+
+Phase 9
+
+Execution engine
+
+Phase 10
+
+AI layer
+
+IMPORTANT DEVELOPMENT PRINCIPLES DECIDED
+
+We agreed to:
+
+build module-by-module
+stabilize each module fully
+avoid monolithic files
+modularize aggressively
+separate UI/backend
+avoid HTML-heavy Streamlit patterns
+architect like institutional systems
+avoid retail-style spaghetti code
+CURRENT PRIORITY
+
+Next session should begin with:
+
+Zerodha WebSocket Live Market Data Module
+
+Goal:
+
+live ticks
+real-time updates
+websocket manager
+reconnect handling
+dashboard live data tiles
+instrument subscriptions

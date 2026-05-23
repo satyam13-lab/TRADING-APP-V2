@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from datetime import datetime
 from threading import Lock
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -31,6 +32,12 @@ class ZerodhaWebSocket:
 
         self.tick_count = 0
 
+        self.last_tick_at = None
+
+        self.last_error = None
+
+        self.watchlist = list(WATCHLIST)
+
         self._state_lock = Lock()
 
         self.setup_callbacks()
@@ -51,11 +58,13 @@ class ZerodhaWebSocket:
 
             self.connected = True
 
-        ws.subscribe(WATCHLIST)
+        ws.subscribe(
+            self.watchlist
+        )
 
         ws.set_mode(
             ws.MODE_FULL,
-            WATCHLIST
+            self.watchlist
         )
 
         print(
@@ -67,6 +76,8 @@ class ZerodhaWebSocket:
         with self._state_lock:
 
             self.tick_count += len(ticks)
+
+            self.last_tick_at = datetime.now()
 
         for tick in ticks:
 
@@ -80,6 +91,8 @@ class ZerodhaWebSocket:
 
             self.connected = False
 
+            self.last_error = str(reason)
+
         print(
             "WebSocket Closed"
         )
@@ -89,6 +102,8 @@ class ZerodhaWebSocket:
         with self._state_lock:
 
             self.connected = False
+
+            self.last_error = str(reason)
 
         print(
             f"WebSocket Error: {reason}"
@@ -100,6 +115,53 @@ class ZerodhaWebSocket:
             threaded=True
         )
 
+    def subscribe(self, tokens):
+
+        clean_tokens = [
+            int(token)
+            for token in tokens
+        ]
+
+        with self._state_lock:
+
+            self.watchlist = sorted(
+                set(
+                    self.watchlist + clean_tokens
+                )
+            )
+
+        if self.connected:
+
+            self.kws.subscribe(
+                clean_tokens
+            )
+
+            self.kws.set_mode(
+                self.kws.MODE_FULL,
+                clean_tokens
+            )
+
+    def unsubscribe(self, tokens):
+
+        clean_tokens = [
+            int(token)
+            for token in tokens
+        ]
+
+        with self._state_lock:
+
+            self.watchlist = [
+                token
+                for token in self.watchlist
+                if token not in clean_tokens
+            ]
+
+        if self.connected:
+
+            self.kws.unsubscribe(
+                clean_tokens
+            )
+
     def close(self):
 
         with self._state_lock:
@@ -107,3 +169,15 @@ class ZerodhaWebSocket:
             self.connected = False
 
         self.kws.close()
+
+    def health(self):
+
+        with self._state_lock:
+
+            return {
+                "connected": self.connected,
+                "tick_count": self.tick_count,
+                "last_tick_at": self.last_tick_at,
+                "last_error": self.last_error,
+                "subscriptions": list(self.watchlist)
+            }

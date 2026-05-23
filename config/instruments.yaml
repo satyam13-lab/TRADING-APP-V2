@@ -1,0 +1,42 @@
+watchlist:
+  indices:
+    - NIFTY
+    - BANKNIFTY
+
+indices:
+  - alias: NIFTY
+    symbol: NIFTY 50
+    exchange: NSE
+    instrument_token: 256265
+    enabled: true
+  - alias: BANKNIFTY
+    symbol: NIFTY BANK
+    exchange: NSE
+    instrument_token: 260105
+    enabled: true
+  - alias: FINNIFTY
+    symbol: NIFTY FIN SERVICE
+    exchange: NSE
+    enabled: false
+  - alias: VIX
+    symbol: INDIA VIX
+    exchange: NSE
+    enabled: false
+
+equities:
+  - RELIANCE
+  - HDFCBANK
+  - ICICIBANK
+  - INFY
+  - TCS
+  - SBIN
+  - LT
+  - AXISBANK
+  - KOTAKBANK
+  - BHARTIARTL
+
+commodities:
+  - GOLD
+  - SILVER
+  - CRUDEOIL
+  - NATURALGAS

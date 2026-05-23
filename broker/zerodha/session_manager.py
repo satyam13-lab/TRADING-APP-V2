@@ -1,12 +1,18 @@
 import json
 from pathlib import Path
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+
+MARKET_TIMEZONE = ZoneInfo("Asia/Kolkata")
 
 
 class SessionManager:
 
     SESSION_FILE = (
-        Path("data/cache/session.json")
+        ROOT_DIR / "data" / "cache" / "session.json"
     )
 
     @classmethod
@@ -40,13 +46,14 @@ class SessionManager:
                     "email"
                 ),
 
-                "login_time": str(
-                    datetime.now()
-                )
+                "login_time": datetime.now(
+                    MARKET_TIMEZONE
+                ).isoformat()
             }
 
-            print("\n========== SAVING SESSION ==========")
-            print(payload)
+            print(
+                "\nSaving Zerodha session metadata"
+            )
 
             with open(
                 cls.SESSION_FILE,
@@ -105,6 +112,16 @@ class SessionManager:
 
                 return None
 
+            if cls._is_session_expired(data):
+
+                print(
+                    "\nSession expired for current trading date"
+                )
+
+                cls.clear_session()
+
+                return None
+
             print(
                 "\nSession loaded successfully"
             )
@@ -154,3 +171,39 @@ class SessionManager:
             )
 
         return None
+
+    @classmethod
+    def _is_session_expired(cls, session_data):
+
+        login_time = session_data.get(
+            "login_time"
+        )
+
+        if not login_time:
+
+            return True
+
+        try:
+
+            parsed_login_time = datetime.fromisoformat(
+                login_time
+            )
+
+            if parsed_login_time.tzinfo is None:
+
+                parsed_login_time = parsed_login_time.replace(
+                    tzinfo=MARKET_TIMEZONE
+                )
+
+            return (
+                parsed_login_time.astimezone(
+                    MARKET_TIMEZONE
+                ).date()
+                != datetime.now(
+                    MARKET_TIMEZONE
+                ).date()
+            )
+
+        except ValueError:
+
+            return True

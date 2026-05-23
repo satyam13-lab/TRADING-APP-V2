@@ -1,5 +1,7 @@
 import sys
 from pathlib import Path
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 sys.path.append(str(ROOT_DIR))
@@ -49,6 +51,21 @@ from app.components.live_market_panel import (
 )
 
 
+MARKET_TIMEZONE = ZoneInfo("Asia/Kolkata")
+
+
+def is_market_open():
+
+    now = datetime.now(
+        MARKET_TIMEZONE
+    )
+
+    return (
+        now.weekday() < 5
+        and time(9, 15) <= now.time() <= time(15, 30)
+    )
+
+
 # =========================================================
 # PAGE CONFIG
 # =========================================================
@@ -59,6 +76,19 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+
+@st.cache_data(
+    ttl=60,
+    show_spinner=False
+)
+def get_zerodha_api_status(access_token):
+
+    checker = ZerodhaAuth()
+
+    return checker.validate_session(
+        access_token
+    )
 
 
 # =========================================================
@@ -84,6 +114,12 @@ auth = ZerodhaAuth()
 
 session = SessionManager.load_session()
 
+api_status = {
+    "status": False,
+    "state": "disconnected",
+    "error": "No active session"
+}
+
 
 # =========================================================
 # AUTO SESSION REFRESH
@@ -98,6 +134,14 @@ if session is None:
 
     session = SessionManager.load_session()
 
+if session:
+
+    api_status = get_zerodha_api_status(
+        session.get(
+            "access_token"
+        )
+    )
+
 
 # =========================================================
 # WEBSOCKET SESSION STATE
@@ -106,6 +150,27 @@ if session is None:
 if "ws" not in st.session_state:
 
     st.session_state.ws = None
+
+if session is None and st.session_state.ws:
+
+    st.session_state.ws.close()
+
+    st.session_state.ws = None
+
+current_ws = st.session_state.ws
+
+feed_active = current_ws is not None
+
+feed_connected = bool(
+    current_ws
+    and getattr(
+        current_ws,
+        "connected",
+        False
+    )
+)
+
+market_open = is_market_open()
 
 
 # =========================================================
@@ -138,21 +203,47 @@ with c1:
 
 with c2:
 
+    api_connected = api_status.get(
+        "status",
+        False
+    )
+
+    api_state = api_status.get(
+        "state",
+        "disconnected"
+    )
+
     render_metric_card(
-        title="Session Status",
+        title="Zerodha API",
 
         value=(
-            "CONNECTED"
-            if session
-            else "DISCONNECTED"
+            "● CONNECTED"
+            if api_connected
+            else (
+                "● CHECKING"
+                if session and api_state == "unverified"
+                else "● DISCONNECTED"
+            )
         ),
 
-        subtitle="Authentication State",
+        subtitle=(
+            "Broker API verified"
+            if api_connected
+            else (
+                "Session exists, API not verified"
+                if session
+                else "Authentication required"
+            )
+        ),
 
         value_color=(
             "#16A34A"
-            if session
-            else "#DC2626"
+            if api_connected
+            else (
+                "#D97706"
+                if session
+                else "#DC2626"
+            )
         )
     )
 
@@ -183,7 +274,8 @@ with left:
 
     render_broker_panel(
         auth,
-        session
+        session,
+        api_status
     )
 
 with right:
@@ -221,7 +313,8 @@ if session:
     with col1:
 
         if st.button(
-            "▶ Start Live Feed"
+            "▶ Start Live Feed",
+            disabled=feed_active
         ):
 
             try:
@@ -233,6 +326,10 @@ if session:
                 ws.connect()
 
                 st.session_state.ws = ws
+
+                current_ws = ws
+
+                feed_active = True
 
                 st.success(
                     "Live market feed started successfully"
@@ -247,7 +344,8 @@ if session:
     with col2:
 
         if st.button(
-            "■ Stop Live Feed"
+            "■ Stop Live Feed",
+            disabled=not feed_active
         ):
 
             try:
@@ -294,26 +392,36 @@ with b1:
 
     st.info(
         "📡 Data Feed\n\nConnected"
-        if st.session_state.ws
-        else "📡 Data Feed\n\nDisconnected"
+        if feed_connected
+        else (
+            "📡 Data Feed\n\nConnecting"
+            if feed_active
+            else "📡 Data Feed\n\nDisconnected"
+        )
     )
 
 with b2:
 
     st.info(
         "🕒 Market Status\n\nOpen"
+        if market_open
+        else "🕒 Market Status\n\nClosed"
     )
 
 with b3:
 
     st.info(
         "🔄 Next Update\n\nLive"
+        if feed_active
+        else "🔄 Next Update\n\nPaused"
     )
 
 with b4:
 
     st.info(
         "⚡ Engine Status\n\nRunning"
+        if feed_connected
+        else "⚡ Engine Status\n\nIdle"
     )
 
 
@@ -321,7 +429,7 @@ with b4:
 # AUTO REFRESH LIVE MARKET DATA
 # =========================================================
 
-if st.session_state.ws:
+if feed_active:
 
     st_autorefresh(
         interval=2000,

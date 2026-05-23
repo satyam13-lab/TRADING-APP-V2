@@ -42,3 +42,35 @@ class ZerodhaAuth:
                 "status": False,
                 "error": str(e)
             }
+
+    def validate_session(self, access_token):
+
+        if not access_token:
+
+            return {
+                "status": False,
+                "state": "disconnected",
+                "error": "Missing access token"
+            }
+
+        try:
+
+            self.kite.set_access_token(
+                access_token
+            )
+
+            profile = self.kite.profile()
+
+            return {
+                "status": True,
+                "state": "connected",
+                "data": profile
+            }
+
+        except Exception as e:
+
+            return {
+                "status": False,
+                "state": "unverified",
+                "error": str(e)
+            }

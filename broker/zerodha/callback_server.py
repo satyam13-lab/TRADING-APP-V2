@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT_DIR = (
     Path(__file__)
@@ -11,16 +12,45 @@ ROOT_DIR = (
 
 sys.path.append(str(ROOT_DIR))
 
-from flask import Flask, request
+from flask import Flask, jsonify, request
 
 from broker.zerodha.auth import (
     ZerodhaAuth
 )
+from config.settings import settings
 
 
 app = Flask(__name__)
 
 auth = ZerodhaAuth()
+
+SERVER_ID = "trading-app-v2-zerodha-callback"
+
+_redirect_url = urlparse(
+    settings.REDIRECT_URL
+    or "http://127.0.0.1:5000/"
+)
+
+CALLBACK_HOST = (
+    _redirect_url.hostname
+    or "127.0.0.1"
+)
+
+CALLBACK_PORT = (
+    _redirect_url.port
+    or 80
+)
+
+
+@app.route("/health")
+def health():
+
+    return jsonify(
+        {
+            "status": "ok",
+            "server_id": SERVER_ID
+        }
+    )
 
 
 @app.route("/")
@@ -37,7 +67,7 @@ def home():
         )
 
         print(
-            f"\nREQUEST TOKEN:\n{request_token}"
+            "\nRequest token received"
         )
 
         if not request_token:
@@ -53,10 +83,14 @@ def home():
         )
 
         print(
-            "\n========== SESSION RESPONSE =========="
+            "\n========== SESSION STATUS =========="
         )
 
-        print(response)
+        print(
+            "SUCCESS"
+            if response.get("status")
+            else "FAILED"
+        )
 
         if response.get("status"):
 
@@ -175,7 +209,8 @@ if __name__ == "__main__":
     )
 
     app.run(
-        host="127.0.0.1",
-        port=5000,
-        debug=True
+        host=CALLBACK_HOST,
+        port=CALLBACK_PORT,
+        debug=False,
+        use_reloader=False
     )

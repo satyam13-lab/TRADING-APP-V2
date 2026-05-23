@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+from threading import Lock
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(ROOT_DIR))
@@ -30,6 +31,8 @@ class ZerodhaWebSocket:
 
         self.tick_count = 0
 
+        self._state_lock = Lock()
+
         self.setup_callbacks()
 
     def setup_callbacks(self):
@@ -44,7 +47,9 @@ class ZerodhaWebSocket:
 
     def on_connect(self, ws, response):
 
-        self.connected = True
+        with self._state_lock:
+
+            self.connected = True
 
         ws.subscribe(WATCHLIST)
 
@@ -59,7 +64,9 @@ class ZerodhaWebSocket:
 
     def on_ticks(self, ws, ticks):
 
-        self.tick_count += len(ticks)
+        with self._state_lock:
+
+            self.tick_count += len(ticks)
 
         for tick in ticks:
 
@@ -69,7 +76,9 @@ class ZerodhaWebSocket:
 
     def on_close(self, ws, code, reason):
 
-        self.connected = False
+        with self._state_lock:
+
+            self.connected = False
 
         print(
             "WebSocket Closed"
@@ -77,7 +86,9 @@ class ZerodhaWebSocket:
 
     def on_error(self, ws, code, reason):
 
-        self.connected = False
+        with self._state_lock:
+
+            self.connected = False
 
         print(
             f"WebSocket Error: {reason}"
@@ -90,5 +101,9 @@ class ZerodhaWebSocket:
         )
 
     def close(self):
+
+        with self._state_lock:
+
+            self.connected = False
 
         self.kws.close()

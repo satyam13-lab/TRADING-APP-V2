@@ -195,5 +195,81 @@ def load_css():
         color: #334155;
     }
 
+    .workspace-header {
+        border-bottom: 1px solid #D8E1EE;
+        padding-bottom: 18px;
+        margin-bottom: 24px;
+    }
+
+    .workspace-title {
+        color: #0F172A;
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 6px;
+    }
+
+    .workspace-subtitle {
+        color: #64748B;
+        font-size: 16px;
+    }
+
+    .panel {
+        background: #FFFFFF;
+        border: 1px solid #DDE7F3;
+        border-radius: 8px;
+        padding: 20px;
+        min-height: 120px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+        margin-bottom: 18px;
+    }
+
+    .panel-title {
+        color: #0F172A;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .panel-subtitle {
+        color: #64748B;
+        font-size: 14px;
+        margin-bottom: 14px;
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 700;
+        border: 1px solid #CBD5E1;
+        background: #F8FAFC;
+        color: #334155;
+    }
+
+    .status-green {
+        background: #ECFDF5;
+        border-color: #BBF7D0;
+        color: #15803D;
+    }
+
+    .status-amber {
+        background: #FFFBEB;
+        border-color: #FDE68A;
+        color: #B45309;
+    }
+
+    .status-red {
+        background: #FEF2F2;
+        border-color: #FECACA;
+        color: #B91C1C;
+    }
+
+    div[data-testid="stDataFrame"] {
+        border: 1px solid #DDE7F3;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
     </style>
     """
